@@ -46,7 +46,7 @@ To disconnect a client, simply close the client window.
 To stop the server, terminate the server terminal.
 
 ## Screenshoots
-![Chat Interface](https://ibb.co/kG55t0M)
+![Chat Interface](https://i.ibb.co/2FWWTP5/img-chat-app.png)
 
 ## Future Improvements
 - Add user authentication for secure access.
