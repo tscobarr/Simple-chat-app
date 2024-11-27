@@ -46,7 +46,7 @@ To disconnect a client, simply close the client window.
 To stop the server, terminate the server terminal.
 
 ## Screenshoots
-![Chat Interface](https://ibb.co/dMk6hyW)
+![Chat Interface](https://ibb.co/kG55t0M)
 
 ## Future Improvements
 - Add user authentication for secure access.
@@ -55,4 +55,5 @@ To stop the server, terminate the server terminal.
 - Allow users to send files or images.
 
 Made By: [tscobarr](mailto:escobar.tomas2004@gmail.com)
+
 **Free Software!**
