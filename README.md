@@ -46,10 +46,13 @@ To disconnect a client, simply close the client window.
 To stop the server, terminate the server terminal.
 
 ## Screenshoots
-![Chat Interface](images/img_chat_app.png)
+![Chat Interface](https://ibb.co/dMk6hyW)
 
 ## Future Improvements
-    - Add user authentication for secure access.
-    - Implement encryption (e.g., Kyber) for secure message transmission.
-    - Improve the GUI with more modern styling (e.g., using PyQt or custom themes).
-    - Allow users to send files or images.
+- Add user authentication for secure access.
+- Implement encryption (e.g., Kyber) for secure message transmission.
+- Improve the GUI with more modern styling (e.g., using PyQt or custom themes).
+- Allow users to send files or images.
+
+Made By: [tscobarr](mailto:escobar.tomas2004@gmail.com)
+**Free Software!**
