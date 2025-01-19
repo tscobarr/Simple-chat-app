@@ -40,22 +40,17 @@ This is a chat application built with Python, using socket programming for clien
    cd secure-chat-application
    ```
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Start the server:
+3. Start the server:
    ```bash
    python server.py
    ```
 
-5. Start a client in a separate terminal or machine:
+4. Start a client in a separate terminal or machine:
    ```bash
    python client.py
    ```
 
-6. Enter a nickname when prompted and start chatting securely!
+5. Enter a nickname when prompted and start chatting securely!
 
 ### Encryption Details
 - **AES Encryption**:
