@@ -1,74 +1,86 @@
 import socket
 import threading
-import json
+from AES import encrypt_message, decrypt_message
+from kyber_py.kyber import Kyber512
 
-# Configuración del servidor
-HOST = '127.0.0.1'
-PORT = 55555
+class Server:
+    def __init__(self, host="localhost", port=5555):
+        self.host = host
+        self.port = port
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind((host, port))
+        self.server.listen(5)
+        self.clients = []
+        self.clients_lock = threading.Lock()
+        self.serverPublicKey, self.serverPrivateKey = Kyber512.keygen()
+        self.client_keys = {}
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((HOST, PORT))
-server.listen()
+    # Broadcast a message to all clients
+    def broadcast_message(self, message, sender=None):
+        with self.clients_lock:
+            for client in self.clients:
+                if client != sender:
+                    try:
+                        sharedKey = self.client_keys[client]  # Get the shared key
+                        if isinstance(message, bytes):
+                            encrypted_message = message
+                        else:
+                            encrypted_message = encrypt_message(message, sharedKey)
+                        print(f"Sending message to client: {encrypted_message}")  # Debug print
+                        client.sendall(encrypted_message)
+                    except Exception as e:
+                        print(f"Error sending message to a client: {e}")
+                        self.clients.remove(client)
+                        del self.client_keys[client]  # Remove the shared key
 
-clients = []
-nicknames = []
+    # Handle each client in a separate thread
+    def handle_client(self, client, addr):
+        print(f"Client {addr} connected.")
+        
+        sharedKey = self.key_exchange(client)
+        self.client_keys[client] = sharedKey  # Store the shared key
+        
+        client.sendall(encrypt_message("Enter your username: ", sharedKey))
+        username = decrypt_message(client.recv(4096), sharedKey)
+        print(f"{username} has joined the chat.")
+        self.broadcast_message(f"{username} has joined the chat!")
 
-def broadcast(message):
-    """Envía un mensaje a todos los clientes conectados."""
-    for client in clients:
-        try:
-            client.send(message)
-        except:
-            # Si falla el envío, eliminamos al cliente
-            remove_client(client)
+        while True:
+            try:
+                encrypted_message = client.recv(4096)
+                if not encrypted_message:
+                    break
+                print(f"Encrypted message received from {username}: {encrypted_message}")  # Debug print
+                message = decrypt_message(encrypted_message, sharedKey)
+                print(f"Decrypted message from {username}: {message}")  # Debug print
+                self.broadcast_message(f"{username}: {message}", sender=client)
+            except Exception as e:
+                print(f"Error with client {username}: {e}")
+                break
 
-def handle(client):
-    """Maneja la conexión de un cliente específico."""
-    while True:
-        try:
-            # Recibe el mensaje del cliente
-            message = client.recv(1024)
-            broadcast(message)
-        except:
-            # Si ocurre un error, cerramos la conexión
-            remove_client(client)
-            break
-
-def remove_client(client):
-    """Elimina al cliente de las listas y notifica a los demás."""
-    if client in clients:
-        index = clients.index(client)
-        clients.remove(client)
+        print(f"{username} has left the chat.")
+        self.broadcast_message(f"{username} has left the chat.")
+        with self.clients_lock:
+            if client in self.clients:
+                self.clients.remove(client)
+                del self.client_keys[client]  # Remove the shared key
         client.close()
 
-        nickname = nicknames[index]
-        broadcast(f'{nickname} left the chat!'.encode('utf-8'))
-        nicknames.remove(nickname)
-
-def receive():
-    """Acepta conexiones de nuevos clientes."""
-    while True:
-        try:
-            client, address = server.accept()
-            print(f"Connected with {str(address)}")
-
-            # Solicita el apodo del cliente
-            client.send('NICK'.encode('utf-8'))
-            nickname = client.recv(1024).decode('utf-8')
-            nicknames.append(nickname)
-            clients.append(client)
-
-            print(f"Nickname of the client is {nickname}!")
-            broadcast(f"{nickname} joined the chat!".encode('utf-8'))
-            client.send('Connected to the server!'.encode('utf-8'))
-
-            # Inicia un hilo para manejar al cliente
-            thread = threading.Thread(target=handle, args=(client,))
+    def key_exchange(self, client):
+        client.sendall(self.serverPublicKey)
+        ciphertext = client.recv(4096)
+        sharedKey = Kyber512.decaps(self.serverPrivateKey, ciphertext)
+        print(f"Shared key (server): {sharedKey}")  # Debug print
+        return sharedKey
+    
+    def start(self):
+        print(f"Server is listening on {self.host}:{self.port}...")
+        while True:
+            client, addr = self.server.accept()
+            with self.clients_lock:
+                self.clients.append(client)
+            thread = threading.Thread(target=self.handle_client, args=(client, addr))
             thread.start()
-        except KeyboardInterrupt:
-            print("\nServer shutting down...")
-            server.close()
-            break
 
-print("Server is listening...")
-receive()
+server=Server()
+server.start()
