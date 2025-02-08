@@ -3,7 +3,8 @@ import threading
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from AES import encrypt_message, decrypt_message
-from kyber_py.kyber import Kyber512
+from kyberKEM import encapsulate
+from kyber_params import KYBER_PARAMS
 
 class Client:
     def __init__(self, host="localhost", port=5555):
@@ -11,6 +12,7 @@ class Client:
         self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sharedKey = None
+        self.params = KYBER_PARAMS["kyber512"]
 
     def connect(self):
         self.client.connect((self.host, self.port))
@@ -25,7 +27,7 @@ class Client:
 
     def key_exchange(self):
         serverPublicKey = self.client.recv(4096)
-        self.sharedKey, ciphertext = Kyber512.encaps(serverPublicKey)
+        self.sharedKey, ciphertext = encapsulate(serverPublicKey, self.params)
         print(f"Shared key (client): {self.sharedKey}")  # Debug print
         self.client.sendall(ciphertext)
 

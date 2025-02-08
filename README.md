@@ -16,7 +16,7 @@ This is a chat application built with Python, using socket programming for clien
   - Socket programming for network communication.
   - Tkinter for the graphical interface.
   - Cryptography libraries for AES encryption.
-  - [kyber-py](https://github.com/GiacomoPope/kyber-py) for Kyber implementation.
+  - [Kyber-Toy-Implementation](https://github.com/tscobarr/Kyber-Toy-Implementation) for Kyber implementation.
 - Threading for handling multiple clients concurrently.
 
 ## How It Works
@@ -34,23 +34,24 @@ This is a chat application built with Python, using socket programming for clien
    ```bash
    git clone https://github.com/tscobarr/Simple-chat-app
    ```
+2. You will have to use the files of [Kyber-Toy-Implementation](https://github.com/tscobarr/Kyber-Toy-Implementation)
 
-2. Navigate to the project directory:
+3. Navigate to the project directory:
    ```bash
    cd secure-chat-application
    ```
 
-3. Start the server:
+4. Start the server:
    ```bash
    python server.py
    ```
 
-4. Start a client in a separate terminal or machine:
+5. Start a client in a separate terminal or machine:
    ```bash
    python client.py
    ```
 
-5. Enter a nickname when prompted and start chatting securely!
+6. Enter a nickname when prompted and start chatting securely!
 
 ### Encryption Details
 - **AES Encryption**:
@@ -65,13 +66,10 @@ This is a chat application built with Python, using socket programming for clien
 - To stop the server, terminate the server terminal.
 
 ## Future Improvements
-- Make our own implementation of kyber.
+- Make it more user friendly.
 
 ## Screenshots
 ![Chat Interface](https://i.ibb.co/2FWWTP5/img-chat-app.png)
-
-## Acknowledgments
-- [kyber-py](https://github.com/GiacomoPope/kyber-py) repository for the Kyber implementation.
 
 Made By: [tscobarr](mailto:escobar.tomas2004@gmail.com)
 

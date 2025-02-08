@@ -1,7 +1,8 @@
 import socket
 import threading
 from AES import encrypt_message, decrypt_message
-from kyber_py.kyber import Kyber512
+from kyberKEM import keygenKEM, decapsulate
+from kyber_params import KYBER_PARAMS
 
 class Server:
     def __init__(self, host="localhost", port=5555):
@@ -12,7 +13,8 @@ class Server:
         self.server.listen(5)
         self.clients = []
         self.clients_lock = threading.Lock()
-        self.serverPublicKey, self.serverPrivateKey = Kyber512.keygen()
+        self.params = KYBER_PARAMS["kyber512"]
+        self.serverPublicKey, self.serverPrivateKey = keygenKEM()
         self.client_keys = {}
 
     # Broadcast a message to all clients
@@ -69,7 +71,7 @@ class Server:
     def key_exchange(self, client):
         client.sendall(self.serverPublicKey)
         ciphertext = client.recv(4096)
-        sharedKey = Kyber512.decaps(self.serverPrivateKey, ciphertext)
+        sharedKey = decapsulate(self.serverPrivateKey, ciphertext, self.params)
         print(f"Shared key (server): {sharedKey}")  # Debug print
         return sharedKey
     
