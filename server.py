@@ -1,8 +1,8 @@
 import socket
 import threading
 from AES import encrypt_message, decrypt_message
-from kyberKEM import keygenKEM, decapsulate
-from kyber_params import KYBER_PARAMS
+from Kyber_Toy_Implementation.kyberKEM import keygenKEM, decapsulate
+from Kyber_Toy_Implementation.kyber_params import KYBER_PARAMS
 
 class Server:
     def __init__(self, host="localhost", port=5555):

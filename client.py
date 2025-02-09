@@ -3,8 +3,8 @@ import threading
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from AES import encrypt_message, decrypt_message
-from kyberKEM import encapsulate
-from kyber_params import KYBER_PARAMS
+from Kyber_Toy_Implementation.kyberKEM import encapsulate
+from Kyber_Toy_Implementation.kyber_params import KYBER_PARAMS
 
 class Client:
     def __init__(self, host="localhost", port=5555):
