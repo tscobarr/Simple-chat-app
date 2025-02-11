@@ -1,8 +1,8 @@
 import hashlib
 import math
-from poly import Polynomial, PolynomialVector
+from .poly import Polynomial, PolynomialVector
 
-def round_up_ties(x):
+def roundUpTies(x):
     """Rounds up ties (e.g., 2.5, -3.5) to the nearest integer.
 
     Args:
@@ -27,7 +27,7 @@ def mods(value, q):
     """
     return ((value + q // 2) % q) - q // 2
 
-def round_q(value, q):
+def roundQ(value, q):
     """Rounds a value to 0 or 1 based on its distance from the nearest multiple of q/4.
 
     Args:
@@ -37,8 +37,8 @@ def round_q(value, q):
     Returns:
         int: The rounded value (0 or 1).
     """
-    sym_value = mods(value, q)
-    if -q / 4 < sym_value < q / 4:
+    symValue = mods(value, q)
+    if -q / 4 < symValue < q / 4:
         return 0
     else:
         return 1
@@ -83,21 +83,21 @@ def KDF(data, length):
     shake.update(data)
     return shake.digest(length)
 
-def cbd(input_bytes, eta):
+def cbd(inputBytes, eta):
     """Generates a polynomial with coefficients in a centered binomial distribution.
 
     Args:
-        input_bytes (bytes): The input bytes.
+        inputBytes (bytes): The input bytes.
         eta (int): The parameter eta.
 
     Returns:
         list: The polynomial coefficients.
     """
-    assert 64 * eta == len(input_bytes)
+    assert 64 * eta == len(inputBytes)
     
     # Convert bytes to bits
     bits = []
-    for byte in input_bytes:
+    for byte in inputBytes:
         bits.extend([int(bit) for bit in format(byte, '08b')])
     
     coefficients = [0 for _ in range(256)]
@@ -109,7 +109,7 @@ def cbd(input_bytes, eta):
     
     return coefficients
 
-def random_poly_vector(k, N, q, eta, seed):
+def randomPolyVector(k, N, q, eta, seed):
     """Generates a random polynomial vector.
 
     Args:
@@ -124,13 +124,13 @@ def random_poly_vector(k, N, q, eta, seed):
     """
     polynomials = []
     for _ in range(k):
-        prf_output = PRF(seed, N, 64 * eta)
-        coefficients = cbd(prf_output, eta)
+        prfOutput = PRF(seed, N, 64 * eta)
+        coefficients = cbd(prfOutput, eta)
         polynomials.append(Polynomial(coefficients, q))
         N += 1
     return PolynomialVector(polynomials)
 
-def random_poly(q, eta, seed, N):
+def randomPoly(q, eta, seed, N):
     """Generates a random polynomial.
 
     Args:
@@ -142,8 +142,8 @@ def random_poly(q, eta, seed, N):
     Returns:
         Polynomial: The random polynomial.
     """
-    prf_output = PRF(seed, N, 64 * eta)
-    coefficients = cbd(prf_output, eta)
+    prfOutput = PRF(seed, N, 64 * eta)
+    coefficients = cbd(prfOutput, eta)
     return Polynomial(coefficients, q)
 
 def expand(rho, k, q, n):
@@ -163,8 +163,8 @@ def expand(rho, k, q, n):
         row = []
         for j in range(k):
             seed = rho + i.to_bytes(1, 'little') + j.to_bytes(1, 'little')
-            hash_output = XOF(seed, n * 2)
-            coefficients = [int.from_bytes(hash_output[2 * l:2 * l + 2], 'little') % q for l in range(n)]
+            hashOutput = XOF(seed, n * 2)
+            coefficients = [int.from_bytes(hashOutput[2 * l:2 * l + 2], 'little') % q for l in range(n)]
             row.append(Polynomial(coefficients, q))
         A.append(row)
     return A
@@ -180,7 +180,7 @@ def compress(x, q, d):
     Returns:
         int: The compressed value.
     """
-    return round_up_ties((2**d / q) * x) % (2**d)
+    return roundUpTies((2**d / q) * x) % (2**d)
 
 def decompress(y, q, d):
     """Decompresses a value.
@@ -193,4 +193,4 @@ def decompress(y, q, d):
     Returns:
         int: The decompressed value.
     """
-    return round_up_ties((q / 2**d) * y) % q
+    return roundUpTies((q / 2**d) * y) % q

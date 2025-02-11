@@ -31,7 +31,7 @@ class Polynomial:
                 result[i + j] %= self.q
         return Polynomial(result, self.q)
 
-    def mul_rq(self, other, n):
+    def mulRq(self, other, n):
         if self.q != other.q:
             raise ValueError("Polynomials must have the same modulus")
         # Use the __mul__ method to multiply the polynomials
@@ -72,7 +72,7 @@ class PolynomialVector:
             raise ValueError("Vectors must have the same length")
         result = Polynomial([0] * self.n, self.q)
         for i in range(len(self.polynomials)):
-            result = result + self.polynomials[i].mul_rq(other.polynomials[i], self.n)
+            result = result + self.polynomials[i].mulRq(other.polynomials[i], self.n)
         return result
 
     def __repr__(self):

@@ -4,15 +4,15 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from AES import encrypt_message, decrypt_message
 from Kyber_Toy_Implementation.kyberKEM import encapsulate
-from Kyber_Toy_Implementation.kyber_params import KYBER_PARAMS
+from Kyber_Toy_Implementation.kyberParams import KYBER_PARAMS
 
 class Client:
-    def __init__(self, host="localhost", port=5555):
+    def __init__(self, host="192.168.20.29", port=5555):
         self.host = host
         self.port = port
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sharedKey = None
-        self.params = KYBER_PARAMS["kyber512"]
+        self.params = KYBER_PARAMS["kyber1024"]
 
     def connect(self):
         self.client.connect((self.host, self.port))
@@ -27,8 +27,7 @@ class Client:
 
     def key_exchange(self):
         serverPublicKey = self.client.recv(4096)
-        self.sharedKey, ciphertext = encapsulate(serverPublicKey, self.params)
-        print(f"Shared key (client): {self.sharedKey}")  # Debug print
+        ciphertext, self.sharedKey = encapsulate(serverPublicKey, self.params)
         self.client.sendall(ciphertext)
 
     def receive_messages(self):
@@ -37,9 +36,7 @@ class Client:
                 encrypted_message = self.client.recv(4096)
                 if not encrypted_message:
                     break
-                print(f"Encrypted message received: {encrypted_message}")  # Debug print
                 message = decrypt_message(encrypted_message, self.sharedKey)
-                print(f"Decrypted message: {message}")  # Debug print
                 self.display_message(message)
             except Exception as e:
                 error_message = f"Error receiving message or disconnected: {e}"

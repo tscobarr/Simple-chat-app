@@ -2,10 +2,10 @@ import socket
 import threading
 from AES import encrypt_message, decrypt_message
 from Kyber_Toy_Implementation.kyberKEM import keygenKEM, decapsulate
-from Kyber_Toy_Implementation.kyber_params import KYBER_PARAMS
+from Kyber_Toy_Implementation.kyberParams import KYBER_PARAMS
 
 class Server:
-    def __init__(self, host="localhost", port=5555):
+    def __init__(self, host="192.168.20.29", port=5555):
         self.host = host
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,8 +13,8 @@ class Server:
         self.server.listen(5)
         self.clients = []
         self.clients_lock = threading.Lock()
-        self.params = KYBER_PARAMS["kyber512"]
-        self.serverPublicKey, self.serverPrivateKey = keygenKEM()
+        self.params = KYBER_PARAMS["kyber1024"]
+        self.serverPublicKey, self.serverPrivateKey = keygenKEM(self.params)
         self.client_keys = {}
 
     # Broadcast a message to all clients
@@ -28,7 +28,6 @@ class Server:
                             encrypted_message = message
                         else:
                             encrypted_message = encrypt_message(message, sharedKey)
-                        print(f"Sending message to client: {encrypted_message}")  # Debug print
                         client.sendall(encrypted_message)
                     except Exception as e:
                         print(f"Error sending message to a client: {e}")
@@ -52,9 +51,8 @@ class Server:
                 encrypted_message = client.recv(4096)
                 if not encrypted_message:
                     break
-                print(f"Encrypted message received from {username}: {encrypted_message}")  # Debug print
                 message = decrypt_message(encrypted_message, sharedKey)
-                print(f"Decrypted message from {username}: {message}")  # Debug print
+                print(f"{username}: {message}")  # Debug print
                 self.broadcast_message(f"{username}: {message}", sender=client)
             except Exception as e:
                 print(f"Error with client {username}: {e}")
@@ -71,8 +69,7 @@ class Server:
     def key_exchange(self, client):
         client.sendall(self.serverPublicKey)
         ciphertext = client.recv(4096)
-        sharedKey = decapsulate(self.serverPrivateKey, ciphertext, self.params)
-        print(f"Shared key (server): {sharedKey}")  # Debug print
+        sharedKey = decapsulate(ciphertext, self.serverPrivateKey, self.params)
         return sharedKey
     
     def start(self):
